@@ -32,4 +32,5 @@ jobs:
           application_name: NorwoodSpice
           environment_name: NorwoodSpice-env
           region: ${{ secrets.AWS_REGION }}
+          version_label: github-${{ github.sha }}
           deployment_package: backend/target/*.jar
