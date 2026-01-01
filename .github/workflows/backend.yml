@@ -22,7 +22,7 @@ jobs:
 
       - name: Build backend
         working-directory: backend
-        run: mvn clean package -DskipTests=false
+        run: mvn clean package
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
