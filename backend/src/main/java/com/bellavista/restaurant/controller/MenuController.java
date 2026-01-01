@@ -1,7 +1,7 @@
 package com.norwoodspice.restaurant.controller;
 
-import com.norwoodspice.restaurant.model.MenuItem;
-import com.norwoodspice.restaurant.service.MenuService;
+import com.bellavista.restaurant.model.MenuItem;
+import com.bellavista.restaurant.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,7 @@
 package com.norwoodspice.restaurant.service;
 
-import com.norwoodspice.restaurant.model.MenuItem;
-import com.norwoodspice.restaurant.repository.MenuItemRepository;
+import com.bellavista.restaurant.model.MenuItem;
+import com.bellavista.restaurant.repository.MenuItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

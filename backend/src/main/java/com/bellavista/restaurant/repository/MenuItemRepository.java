@@ -1,6 +1,6 @@
 package com.norwoodspice.restaurant.repository;
 
-import com.norwoodspice.restaurant.model.MenuItem;
+import com.bellavista.restaurant.model.MenuItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
