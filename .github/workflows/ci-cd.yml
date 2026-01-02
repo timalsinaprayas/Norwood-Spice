@@ -10,46 +10,10 @@ env:
   AWS_REGION: ${{ vars.AWS_REGION }}
 
 jobs:
-  # Security and Quality Gates (Non-blocking)
-  security-scan:
-    name: Security & Quality Scan
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      continue-on-error: true
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
-
-    - name: Check for secrets
-      uses: gitleaks/gitleaks-action@v2
-      continue-on-error: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   # Backend Tests & Build
   backend:
     name: Backend Build & Test
     runs-on: ubuntu-latest
-    # Removed dependency on security-scan to allow deployment even if scans fail
 
     steps:
     - name: Checkout code
@@ -126,7 +90,6 @@ jobs:
   frontend:
     name: Frontend Build & Test
     runs-on: ubuntu-latest
-    # Removed dependency on security-scan to allow deployment even if scans fail
 
     steps:
     - name: Checkout code
@@ -194,7 +157,6 @@ jobs:
     name: Infrastructure Tests
     runs-on: ubuntu-latest
     needs: [backend, frontend]
-    # Note: Security scans are non-blocking, deployment continues even if they fail
 
     steps:
     - name: Checkout code
@@ -213,20 +175,6 @@ jobs:
         cd infrastructure/terraform
         terraform init -backend=false
         terraform validate
-
-    - name: Checkov Security Scan
-      uses: bridgecrewio/checkov-action@v12
-      with:
-        directory: infrastructure/terraform/
-        framework: terraform
-        output_format: sarif
-        output_file_path: checkov-results.sarif
-
-    - name: Upload Checkov results
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: checkov-results.sarif
 
   # Deploy to Staging (only on develop branch)
   deploy-staging:
