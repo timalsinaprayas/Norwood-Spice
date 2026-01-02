@@ -52,7 +52,7 @@ terraform init
 Create a `terraform.tfvars` file or set environment variables:
 
 ```hcl
-aws_region       = "us-east-1"
+aws_region       = "us-east-2"
 environment      = "production"
 aws_account_id   = "123456789012"
 github_repository = "your-org/restaurant-app"
@@ -76,7 +76,7 @@ Set the following secrets in your GitHub repository:
 # AWS Credentials
 AWS_ACCESS_KEY_ID=your-aws-access-key
 AWS_SECRET_ACCESS_KEY=your-aws-secret-key
-AWS_REGION=us-east-1
+AWS_REGION=us-east-2
 
 # Terraform Cloud (optional)
 TF_API_TOKEN=your-terraform-cloud-token
@@ -203,7 +203,7 @@ terraform force-unlock LOCK_ID
 #### ECR Authentication
 ```bash
 # Login to ECR
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
 ```
 
 #### ECS Service Issues

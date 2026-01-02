@@ -1,4 +1,4 @@
-aws_region = "us-east-1"
+aws_region = "us-east-2"
 environment = "production"
 project_name = "norwoodspice"
 
@@ -8,7 +8,7 @@ backend_cpu = 512
 backend_memory = 1024
 
 # AWS Configuration
-aws_region = "us-east-1"
+aws_region = "us-east-2"
 environment = "production"
 project_name = "norwoodspice"
 

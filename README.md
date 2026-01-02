@@ -171,14 +171,14 @@ mvn spring-boot:run
    ```bash
    # Frontend
    docker build -t norwoodspice/frontend ./frontend
-   aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
-   docker tag norwoodspice/frontend:latest <account>.dkr.ecr.us-east-1.amazonaws.com/norwoodspice/frontend:latest
-   docker push <account>.dkr.ecr.us-east-1.amazonaws.com/norwoodspice/frontend:latest
+   aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-2.amazonaws.com
+   docker tag norwoodspice/frontend:latest <account>.dkr.ecr.us-east-2.amazonaws.com/norwoodspice/frontend:latest
+   docker push <account>.dkr.ecr.us-east-2.amazonaws.com/norwoodspice/frontend:latest
 
    # Backend
    docker build -t norwoodspice/backend ./backend
-   docker tag norwoodspice/backend:latest <account>.dkr.ecr.us-east-1.amazonaws.com/norwoodspice/backend:latest
-   docker push <account>.dkr.ecr.us-east-1.amazonaws.com/norwoodspice/backend:latest
+   docker tag norwoodspice/backend:latest <account>.dkr.ecr.us-east-2.amazonaws.com/norwoodspice/backend:latest
+   docker push <account>.dkr.ecr.us-east-2.amazonaws.com/norwoodspice/backend:latest
    ```
 
 2. **Update ECS services** to use new images

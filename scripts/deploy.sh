@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 INFRA_DIR="$PROJECT_ROOT/infrastructure/terraform"
 ENVIRONMENT="${ENVIRONMENT:-production}"
-AWS_REGION="${AWS_REGION:-us-east-1}"
+AWS_REGION="${AWS_REGION:-us-east-2}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -263,7 +263,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  -e, --environment ENV    Deployment environment (default: production)"
-            echo "  -r, --region REGION      AWS region (default: us-east-1)"
+            echo "  -r, --region REGION      AWS region (default: us-east-2)"
             echo "  --auto-approve          Auto-approve Terraform changes"
             echo "  -h, --help              Show this help message"
             exit 0
