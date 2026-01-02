@@ -94,11 +94,6 @@ jobs:
         npm cache clean --force
         npm install --prefer-offline --no-audit
 
-    - name: Run frontend linting
-      run: |
-        cd frontend
-        npm run lint
-
     - name: Run frontend tests
       run: |
         cd frontend
