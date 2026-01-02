@@ -7,7 +7,9 @@ on:
     branches: [ main, develop ]
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY }}
 
 jobs:
   # Backend Tests & Build
@@ -144,9 +146,17 @@ jobs:
 
     - name: Debug GitHub variables
       run: |
-        echo "AWS_REGION: ${{ vars.AWS_REGION }}"
-        echo "AWS_REGION exists: ${{ vars.AWS_REGION != '' }}"
-        echo "Defaulting to us-east-1 if not set"
+        echo "=== GitHub Repository Variables ==="
+        echo "AWS_REGION: '${{ vars.AWS_REGION }}'"
+        echo "AWS_REGION length: ${{ length(vars.AWS_REGION) }}"
+        echo "AWS_ACCESS_KEY_ID exists: ${{ vars.AWS_ACCESS_KEY_ID != '' }}"
+        echo "AWS_SECRET_ACCESS_KEY_KEY exists: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY != '' }}"
+        echo "AWS_SECRET_ACCESS_KEY exists: ${{ vars.AWS_SECRET_ACCESS_KEY != '' }}"
+        echo ""
+        echo "=== Testing fallback logic ==="
+        echo "Region to use: ${{ vars.AWS_REGION || 'us-east-1' }}"
+        echo "Access Key ID: ${{ vars.AWS_ACCESS_KEY_ID || 'NOT_SET' }}"
+        echo "Secret Key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY || 'NOT_SET' }}"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -199,9 +209,17 @@ jobs:
 
     - name: Debug GitHub variables
       run: |
-        echo "AWS_REGION: ${{ vars.AWS_REGION }}"
-        echo "AWS_REGION exists: ${{ vars.AWS_REGION != '' }}"
-        echo "Defaulting to us-east-1 if not set"
+        echo "=== GitHub Repository Variables ==="
+        echo "AWS_REGION: '${{ vars.AWS_REGION }}'"
+        echo "AWS_REGION length: ${{ length(vars.AWS_REGION) }}"
+        echo "AWS_ACCESS_KEY_ID exists: ${{ vars.AWS_ACCESS_KEY_ID != '' }}"
+        echo "AWS_SECRET_ACCESS_KEY_KEY exists: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY != '' }}"
+        echo "AWS_SECRET_ACCESS_KEY exists: ${{ vars.AWS_SECRET_ACCESS_KEY != '' }}"
+        echo ""
+        echo "=== Testing fallback logic ==="
+        echo "Region to use: ${{ vars.AWS_REGION || 'us-east-1' }}"
+        echo "Access Key ID: ${{ vars.AWS_ACCESS_KEY_ID || 'NOT_SET' }}"
+        echo "Secret Key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY || 'NOT_SET' }}"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
