@@ -142,12 +142,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Debug GitHub variables
+      run: |
+        echo "AWS_REGION: ${{ vars.AWS_REGION }}"
+        echo "AWS_REGION exists: ${{ vars.AWS_REGION != '' }}"
+        echo "Defaulting to us-east-1 if not set"
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -191,12 +197,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Debug GitHub variables
+      run: |
+        echo "AWS_REGION: ${{ vars.AWS_REGION }}"
+        echo "AWS_REGION exists: ${{ vars.AWS_REGION != '' }}"
+        echo "Defaulting to us-east-1 if not set"
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
     - name: Login to Amazon ECR
       id: login-ecr
