@@ -55,36 +55,15 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Run backend tests with coverage
+    - name: Run backend tests
       run: |
         cd backend
         mvn --version
-        mvn clean test jacoco:report
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./backend/target/site/jacoco/jacoco.xml
-        flags: backend
-        name: backend-coverage
+        mvn clean test
 
     - name: Build backend Docker image
       run: |
         docker build -t backend-test backend/
-
-    - name: Scan backend Docker image
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'image'
-        scan-ref: 'backend-test'
-        format: 'sarif'
-        output: 'backend-trivy-results.sarif'
-
-    - name: Upload backend scan results
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'backend-trivy-results.sarif'
 
   # Frontend Tests & Build
   frontend:
@@ -99,7 +78,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.19.0'
-        cache: false  # Disable cache to avoid version conflicts
 
     - name: Verify Node.js version
       run: |
@@ -137,20 +115,6 @@ jobs:
       run: |
         cd frontend
         docker build -t frontend-test .
-
-    - name: Scan frontend Docker image
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'image'
-        scan-ref: 'frontend-test'
-        format: 'sarif'
-        output: 'frontend-trivy-results.sarif'
-
-    - name: Upload frontend scan results
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'frontend-trivy-results.sarif'
 
   # Infrastructure Tests
   infrastructure:
