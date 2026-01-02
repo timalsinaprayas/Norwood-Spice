@@ -147,7 +147,7 @@ jobs:
       with:
         aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: us-east-1
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -196,7 +196,7 @@ jobs:
       with:
         aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: us-east-1
 
     - name: Login to Amazon ECR
       id: login-ecr
