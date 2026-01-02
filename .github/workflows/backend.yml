@@ -34,4 +34,4 @@ jobs:
           environment_name: NorwoodSpice-env
           region: us-east-1
           version_label: github-${{ github.sha }}
-          deployment_package: backend/target/norwoodspice-0.0.0.jar
+          deployment_package: backend/target/norwoodspice.jar
