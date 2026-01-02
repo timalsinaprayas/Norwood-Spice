@@ -58,6 +58,23 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        java-package: jdk
+        cache: maven
+
+    - name: Verify Java setup
+      run: |
+        echo "Java version:"
+        java -version
+        echo ""
+        echo "JAVA_HOME: $JAVA_HOME"
+        echo ""
+        echo "PATH: $PATH"
+        echo ""
+        echo "Java location:"
+        which java
+        echo ""
+        echo "Maven version:"
+        mvn --version
 
     - name: Cache Maven dependencies
       uses: actions/cache@v4
@@ -69,7 +86,8 @@ jobs:
     - name: Run backend tests with coverage
       run: |
         cd backend
-        mvn test jacoco:report
+        mvn --version
+        mvn clean test jacoco:report
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
@@ -80,8 +98,7 @@ jobs:
 
     - name: Build backend Docker image
       run: |
-        cd backend
-        docker build -t backend-test .
+        docker build -t backend-test backend/
 
     - name: Scan backend Docker image
       uses: aquasecurity/trivy-action@master
