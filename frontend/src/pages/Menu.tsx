@@ -98,7 +98,7 @@ const Menu = () => {
         const element = categoryRefs.current[category]
         if (element) {
           const rect = element.getBoundingClientRect()
-          const elementTop = rect.top + scrollTop
+          const elementTop = rect.top + scrollTop - headerOffset
           const elementCenter = elementTop + rect.height / 2
 
           // Calculate distance from viewport center to element center

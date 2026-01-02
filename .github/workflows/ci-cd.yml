@@ -1,0 +1,282 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ${{ github.repository }}/backend
+  FRONTEND_IMAGE: ${{ github.repository }}/frontend
+
+jobs:
+  # Security and Quality Gates
+  security-scan:
+    name: Security & Quality Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Check for secrets
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Backend Tests & Build
+  backend:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    needs: security-scan
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Run backend tests with coverage
+      run: |
+        cd backend
+        mvn test jacoco:report
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./backend/target/site/jacoco/jacoco.xml
+        flags: backend
+        name: backend-coverage
+
+    - name: Build backend Docker image
+      run: |
+        cd backend
+        docker build -t backend-test .
+
+    - name: Scan backend Docker image
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'image'
+        scan-ref: 'backend-test'
+        format: 'sarif'
+        output: 'backend-trivy-results.sarif'
+
+    - name: Upload backend scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'backend-trivy-results.sarif'
+
+  # Frontend Tests & Build
+  frontend:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    needs: security-scan
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Run frontend linting
+      run: |
+        cd frontend
+        npm run lint
+
+    - name: Run frontend tests
+      run: |
+        cd frontend
+        npm test -- --coverage --watchAll=false
+
+    - name: Upload frontend coverage
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+    - name: Build frontend Docker image
+      run: |
+        cd frontend
+        docker build -t frontend-test .
+
+    - name: Scan frontend Docker image
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'image'
+        scan-ref: 'frontend-test'
+        format: 'sarif'
+        output: 'frontend-trivy-results.sarif'
+
+    - name: Upload frontend scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'frontend-trivy-results.sarif'
+
+  # Infrastructure Tests
+  infrastructure:
+    name: Infrastructure Tests
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Format Check
+      run: |
+        cd infrastructure/terraform
+        terraform fmt -check
+
+    - name: Terraform Validate
+      run: |
+        cd infrastructure/terraform
+        terraform init -backend=false
+        terraform validate
+
+    - name: Checkov Security Scan
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        directory: infrastructure/terraform/
+        framework: terraform
+        output_format: sarif
+        output_file_path: checkov-results.sarif
+
+    - name: Upload Checkov results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: checkov-results.sarif
+
+  # Deploy to Staging (only on develop branch)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, infrastructure]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push backend image
+      run: |
+        cd backend
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }}
+
+    - name: Build and push frontend image
+      run: |
+        cd frontend
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }}
+
+    - name: Deploy to ECS
+      run: |
+        aws ecs update-service \
+          --cluster restaurant-staging \
+          --service restaurant-service \
+          --force-new-deployment \
+          --region us-east-1
+
+  # Deploy to Production (only on main branch with manual approval)
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, infrastructure]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push backend image
+      run: |
+        cd backend
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }}
+
+    - name: Build and push frontend image
+      run: |
+        cd frontend
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }}
+
+    - name: Deploy to ECS
+      run: |
+        aws ecs update-service \
+          --cluster restaurant-production \
+          --service restaurant-service \
+          --force-new-deployment \
+          --region us-east-1
