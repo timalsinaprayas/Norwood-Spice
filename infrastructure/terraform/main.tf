@@ -74,6 +74,45 @@ resource "aws_ecr_repository" "backend" {
   }
 }
 
+# ECR Lifecycle Policy
+resource "aws_ecr_lifecycle_policy" "frontend" {
+  repository = aws_ecr_repository.frontend.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep last 10 images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 10
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
+}
+
+resource "aws_ecr_lifecycle_policy" "backend" {
+  repository = aws_ecr_repository.backend.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep last 10 images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 10
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
+}
+
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = "norwoodspice-cluster"
@@ -307,10 +346,10 @@ resource "aws_ecs_task_definition" "frontend" {
   memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
-  container_definitions = jsonencode([
+      container_definitions = jsonencode([
     {
       name  = "frontend"
-      image = "${aws_ecr_repository.frontend.repository_url}:latest"
+      image = var.frontend_image_uri != "" ? var.frontend_image_uri : "${aws_ecr_repository.frontend.repository_url}:latest"
 
       portMappings = [
         {
@@ -358,10 +397,10 @@ resource "aws_ecs_task_definition" "backend" {
   memory                   = "1024"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
-  container_definitions = jsonencode([
+      container_definitions = jsonencode([
     {
       name  = "backend"
-      image = "${aws_ecr_repository.backend.repository_url}:latest"
+      image = var.backend_image_uri != "" ? var.backend_image_uri : "${aws_ecr_repository.backend.repository_url}:latest"
 
       portMappings = [
         {

@@ -72,3 +72,15 @@ variable "github_repository" {
   description = "GitHub repository for OIDC provider (format: owner/repo)"
   type        = string
 }
+
+variable "frontend_image_uri" {
+  description = "URI of the frontend Docker image to deploy (leave empty for latest)"
+  type        = string
+  default     = ""
+}
+
+variable "backend_image_uri" {
+  description = "URI of the backend Docker image to deploy (leave empty for latest)"
+  type        = string
+  default     = ""
+}

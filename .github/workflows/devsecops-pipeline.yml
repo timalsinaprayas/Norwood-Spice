@@ -209,10 +209,16 @@ jobs:
 
       - name: Deploy to ECS
         run: |
-          # Update ECS service to use new images
+          # Update ECS services to use new images
           aws ecs update-service \
             --cluster norwoodspice-cluster \
-            --service norwoodspice-service \
+            --service norwoodspice-frontend-service \
+            --force-new-deployment \
+            --region ${{ secrets.AWS_REGION }}
+
+          aws ecs update-service \
+            --cluster norwoodspice-cluster \
+            --service norwoodspice-backend-service \
             --force-new-deployment \
             --region ${{ secrets.AWS_REGION }}
 
@@ -220,5 +226,10 @@ jobs:
         run: |
           aws ecs wait services-stable \
             --cluster norwoodspice-cluster \
-            --services norwoodspice-service \
+            --services norwoodspice-frontend-service \
+            --region ${{ secrets.AWS_REGION }}
+
+          aws ecs wait services-stable \
+            --cluster norwoodspice-cluster \
+            --services norwoodspice-backend-service \
             --region ${{ secrets.AWS_REGION }}

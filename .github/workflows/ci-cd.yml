@@ -7,9 +7,7 @@ on:
     branches: [ main, develop ]
 
 env:
-  REGISTRY: ghcr.io
-  BACKEND_IMAGE: ${{ github.repository }}/backend
-  FRONTEND_IMAGE: ${{ github.repository }}/frontend
+  AWS_REGION: ${{ vars.AWS_REGION }}
 
 jobs:
   # Security and Quality Gates
@@ -210,9 +208,9 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+        aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -221,20 +219,26 @@ jobs:
     - name: Build and push backend image
       run: |
         cd backend
-        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }} .
-        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }}
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/norwoodspice/backend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/norwoodspice/backend:${{ github.sha }}
 
     - name: Build and push frontend image
       run: |
         cd frontend
-        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }} .
-        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }}
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/norwoodspice/frontend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/norwoodspice/frontend:${{ github.sha }}
 
     - name: Deploy to ECS
       run: |
         aws ecs update-service \
-          --cluster restaurant-staging \
-          --service restaurant-service \
+          --cluster norwoodspice-cluster \
+          --service norwoodspice-frontend-service \
+          --force-new-deployment \
+          --region us-east-1
+
+        aws ecs update-service \
+          --cluster norwoodspice-cluster \
+          --service norwoodspice-backend-service \
           --force-new-deployment \
           --region us-east-1
 
@@ -253,9 +257,9 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+        aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -264,19 +268,25 @@ jobs:
     - name: Build and push backend image
       run: |
         cd backend
-        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }} .
-        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-backend:${{ github.sha }}
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/norwoodspice/backend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/norwoodspice/backend:${{ github.sha }}
 
     - name: Build and push frontend image
       run: |
         cd frontend
-        docker build -t ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }} .
-        docker push ${{ steps.login-ecr.outputs.registry }}/restaurant-frontend:${{ github.sha }}
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/norwoodspice/frontend:${{ github.sha }} .
+        docker push ${{ steps.login-ecr.outputs.registry }}/norwoodspice/frontend:${{ github.sha }}
 
     - name: Deploy to ECS
       run: |
         aws ecs update-service \
-          --cluster restaurant-production \
-          --service restaurant-service \
+          --cluster norwoodspice-cluster \
+          --service norwoodspice-frontend-service \
+          --force-new-deployment \
+          --region us-east-1
+
+        aws ecs update-service \
+          --cluster norwoodspice-cluster \
+          --service norwoodspice-backend-service \
           --force-new-deployment \
           --region us-east-1
