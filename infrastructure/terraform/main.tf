@@ -8,11 +8,12 @@ terraform {
 
   required_version = ">= 1.5.0"
 
-  backend "s3" {
-    bucket = "norwoodspice-terraform-state"
-    key    = "devsecops/terraform.tfstate"
-    region = "us-east-2"
-  }
+  # Using local backend for simplicity
+  # backend "s3" {
+  #   bucket = "norwoodspice-terraform-state"
+  #   key    = "devsecops/terraform.tfstate"
+  #   region = "us-east-2"
+  # }
 }
 
 provider "aws" {
@@ -39,81 +40,18 @@ module "vpc" {
   }
 }
 
-# ECR Repositories
-resource "aws_ecr_repository" "frontend" {
-  name                 = "norwoodspice/frontend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = "NorwoodSpice"
-  }
+# ECR Repositories (using existing repositories)
+data "aws_ecr_repository" "frontend" {
+  name = "norwoodspice/frontend"
 }
 
-resource "aws_ecr_repository" "backend" {
-  name                 = "norwoodspice/backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = "NorwoodSpice"
-  }
+data "aws_ecr_repository" "backend" {
+  name = "norwoodspice/backend"
 }
 
 # ECR Lifecycle Policy
-resource "aws_ecr_lifecycle_policy" "frontend" {
-  repository = aws_ecr_repository.frontend.name
-
-  policy = jsonencode({
-    rules = [{
-      rulePriority = 1
-      description  = "Keep last 10 images"
-      selection = {
-        tagStatus   = "any"
-        countType   = "imageCountMoreThan"
-        countNumber = 10
-      }
-      action = {
-        type = "expire"
-      }
-    }]
-  })
-}
-
-resource "aws_ecr_lifecycle_policy" "backend" {
-  repository = aws_ecr_repository.backend.name
-
-  policy = jsonencode({
-    rules = [{
-      rulePriority = 1
-      description  = "Keep last 10 images"
-      selection = {
-        tagStatus   = "any"
-        countType   = "imageCountMoreThan"
-        countNumber = 10
-      }
-      action = {
-        type = "expire"
-      }
-    }]
-  })
-}
+# ECR Lifecycle policies removed - manage manually in AWS console
+# since we're using data sources for existing repositories
 
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
@@ -351,7 +289,7 @@ resource "aws_ecs_task_definition" "frontend" {
       container_definitions = jsonencode([
     {
       name  = "frontend"
-      image = var.frontend_image_uri != "" ? var.frontend_image_uri : "${aws_ecr_repository.frontend.repository_url}:latest"
+      image = var.frontend_image_uri != "" ? var.frontend_image_uri : "${data.aws_ecr_repository.frontend.repository_url}:latest"
 
       portMappings = [
         {
@@ -402,7 +340,7 @@ resource "aws_ecs_task_definition" "backend" {
       container_definitions = jsonencode([
     {
       name  = "backend"
-      image = var.backend_image_uri != "" ? var.backend_image_uri : "${aws_ecr_repository.backend.repository_url}:latest"
+      image = var.backend_image_uri != "" ? var.backend_image_uri : "${data.aws_ecr_repository.backend.repository_url}:latest"
 
       portMappings = [
         {
@@ -604,12 +542,12 @@ output "backend_url" {
 
 output "ecr_frontend_repository_url" {
   description = "ECR repository URL for frontend"
-  value       = aws_ecr_repository.frontend.repository_url
+  value       = data.aws_ecr_repository.frontend.repository_url
 }
 
 output "ecr_backend_repository_url" {
   description = "ECR repository URL for backend"
-  value       = aws_ecr_repository.backend.repository_url
+  value       = data.aws_ecr_repository.backend.repository_url
 }
 
 output "public_url" {
