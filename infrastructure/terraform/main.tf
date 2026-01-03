@@ -8,11 +8,12 @@ terraform {
 
   required_version = ">= 1.5.0"
 
-  backend "s3" {
-    bucket = "norwoodspice-terraform-state"
-    key    = "devsecops/terraform.tfstate"
-    region = "us-east-2"
-  }
+  # Using local backend for simplicity
+  # backend "s3" {
+  #   bucket = "norwoodspice-terraform-state"
+  #   key    = "devsecops/terraform.tfstate"
+  #   region = "us-east-2"
+  # }
 }
 
 provider "aws" {
