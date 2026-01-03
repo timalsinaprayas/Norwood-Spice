@@ -40,41 +40,13 @@ module "vpc" {
   }
 }
 
-# ECR Repositories
-resource "aws_ecr_repository" "frontend" {
-  name                 = "norwoodspice/frontend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = "NorwoodSpice"
-  }
+# ECR Repositories (using existing repositories)
+data "aws_ecr_repository" "frontend" {
+  name = "norwoodspice/frontend"
 }
 
-resource "aws_ecr_repository" "backend" {
-  name                 = "norwoodspice/backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = "NorwoodSpice"
-  }
+data "aws_ecr_repository" "backend" {
+  name = "norwoodspice/backend"
 }
 
 # ECR Lifecycle Policy
@@ -352,7 +324,7 @@ resource "aws_ecs_task_definition" "frontend" {
       container_definitions = jsonencode([
     {
       name  = "frontend"
-      image = var.frontend_image_uri != "" ? var.frontend_image_uri : "${aws_ecr_repository.frontend.repository_url}:latest"
+      image = var.frontend_image_uri != "" ? var.frontend_image_uri : "${data.aws_ecr_repository.frontend.repository_url}:latest"
 
       portMappings = [
         {
@@ -403,7 +375,7 @@ resource "aws_ecs_task_definition" "backend" {
       container_definitions = jsonencode([
     {
       name  = "backend"
-      image = var.backend_image_uri != "" ? var.backend_image_uri : "${aws_ecr_repository.backend.repository_url}:latest"
+      image = var.backend_image_uri != "" ? var.backend_image_uri : "${data.aws_ecr_repository.backend.repository_url}:latest"
 
       portMappings = [
         {
@@ -605,12 +577,12 @@ output "backend_url" {
 
 output "ecr_frontend_repository_url" {
   description = "ECR repository URL for frontend"
-  value       = aws_ecr_repository.frontend.repository_url
+  value       = data.aws_ecr_repository.frontend.repository_url
 }
 
 output "ecr_backend_repository_url" {
   description = "ECR repository URL for backend"
-  value       = aws_ecr_repository.backend.repository_url
+  value       = data.aws_ecr_repository.backend.repository_url
 }
 
 output "public_url" {
