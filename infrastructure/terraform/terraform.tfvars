@@ -7,17 +7,6 @@ frontend_memory = 512
 backend_cpu = 512
 backend_memory = 1024
 
-# AWS Configuration
-aws_region = "us-east-2"
-environment = "production"
-project_name = "norwoodspice"
-
-# ECS Configuration
-frontend_cpu = 256
-frontend_memory = 512
-backend_cpu = 512
-backend_memory = 1024
-
 desired_count_frontend = 2
 desired_count_backend = 1
 
