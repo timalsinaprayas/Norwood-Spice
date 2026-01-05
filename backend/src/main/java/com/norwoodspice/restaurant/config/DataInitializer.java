@@ -31,7 +31,8 @@ public class DataInitializer implements CommandLineRunner {
                 "Chicken clear soup flavored with roasted garlic and herbs. (GF).",
                 "https://images.unsplash.com/photo-1547592180-85f173990554?w=800",
                 3.99,
-                false, "Soups"
+                false,
+                "Soups"
             ));
             
             // Salads
@@ -48,7 +49,8 @@ public class DataInitializer implements CommandLineRunner {
                 "Cucumbers, onion, tomatoes, mixed greens, and mixed bell peppers with a vinaigrette dressing.",
                 "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800",
                 7.49,
-                false, "Salads"
+                false,
+                "Salads"
             ));
             
             // Appetizers
