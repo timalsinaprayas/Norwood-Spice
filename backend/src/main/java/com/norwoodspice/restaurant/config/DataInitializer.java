@@ -15,6 +15,9 @@ public class DataInitializer implements CommandLineRunner {
     
     @Override
     public void run(String... args) throws Exception {
+        // Data is now loaded via data.sql, so DataInitializer is no longer needed
+        // Commenting out to prevent conflicts with data.sql initialization
+        /*
         if (menuItemRepository.count() == 0) {
             // Soups
             menuItemRepository.save(new MenuItem(
@@ -954,5 +957,6 @@ public class DataInitializer implements CommandLineRunner {
                 false, "Beverages"
             ));
         }
+        */
     }
 }
