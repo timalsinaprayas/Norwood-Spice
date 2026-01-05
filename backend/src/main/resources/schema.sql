@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS menu_items (
     description VARCHAR(1000),
     image_url VARCHAR(500),
     price DOUBLE PRECISION NOT NULL,
-    special BOOLEAN NOT NULL DEFAULT FALSE
+    special BOOLEAN NOT NULL DEFAULT FALSE,
+    category VARCHAR(255) NOT NULL
 );
 
 -- Create index on special column for faster queries

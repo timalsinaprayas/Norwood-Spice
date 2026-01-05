@@ -17,13 +17,16 @@ const Menu = () => {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const isProgrammaticScrollRef = useRef(false)
 
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
-        const response = await axios.get('/api/menu')
+        const apiUrl = window.location.hostname === 'localhost'
+          ? 'http://localhost:8080/api/menu'
+          : 'http://localhost:8080/api/menu'
+        const response = await axios.get(apiUrl)
         setMenuItems(response.data)
-        // Set first category as default
         if (response.data.length > 0) {
           setSelectedCategory(response.data[0].category)
         }
@@ -38,7 +41,6 @@ const Menu = () => {
     fetchMenuItems()
   }, [])
 
-  // Group items by category
   const itemsByCategory = menuItems.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = []
@@ -47,9 +49,8 @@ const Menu = () => {
     return acc
   }, {} as { [key: string]: MenuItem[] })
 
-  // Order categories to match the restaurant's menu order
   const categoryOrder = [
-    'Specials', // Add Specials as the first category
+    'Specials',
     'Soups',
     'Salads',
     'Appetizers',
@@ -67,30 +68,24 @@ const Menu = () => {
     'Beverages'
   ]
 
-  // Add Specials category with only special items
   const specialsItems = menuItems.filter(item => item.special)
   if (specialsItems.length > 0) {
     itemsByCategory['Specials'] = specialsItems
   }
 
   const categories = categoryOrder.filter(cat => itemsByCategory[cat])
-  const isScrollingRef = useRef(false)
 
-  // Scroll detection to update selected category
+  // Simple scroll detection to update selected category
   useEffect(() => {
     if (categories.length === 0) return
 
-    // Use scroll event instead of intersection observer for better control
-    let ticking = false
-
-    const updateSelectedCategory = () => {
-      if (isScrollingRef.current) return
+    const handleScroll = () => {
+      if (isProgrammaticScrollRef.current) return
 
       const viewportHeight = window.innerHeight
       const scrollTop = window.scrollY
-      const headerOffset = 250 // Account for sticky headers and nav
+      const headerOffset = 250
 
-      // Find which category is currently in view
       let currentCategory = null
       let minDistance = Infinity
 
@@ -100,8 +95,6 @@ const Menu = () => {
           const rect = element.getBoundingClientRect()
           const elementTop = rect.top + scrollTop - headerOffset
           const elementCenter = elementTop + rect.height / 2
-
-          // Calculate distance from viewport center to element center
           const distance = Math.abs((scrollTop + viewportHeight / 2) - elementCenter)
 
           if (distance < minDistance) {
@@ -114,21 +107,9 @@ const Menu = () => {
       if (currentCategory && currentCategory !== selectedCategory) {
         setSelectedCategory(currentCategory)
       }
-
-      ticking = false
-    }
-
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(updateSelectedCategory)
-        ticking = true
-      }
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-
-    // Initial check
-    updateSelectedCategory()
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
@@ -138,14 +119,14 @@ const Menu = () => {
   const scrollToCategory = (category: string) => {
     const element = categoryRefs.current[category]
     if (element) {
-      isScrollingRef.current = true
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
       setSelectedCategory(category)
-      
-      // Reset the flag after scrolling completes
+      isProgrammaticScrollRef.current = true
+
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
       setTimeout(() => {
-        isScrollingRef.current = false
-      }, 1000)
+        isProgrammaticScrollRef.current = false
+      }, 1200)
     }
   }
 
@@ -177,7 +158,6 @@ const Menu = () => {
         <p>Discover our carefully crafted dishes made with the finest ingredients</p>
       </div>
 
-      {/* Category Navigation */}
       <div className="category-navigation">
         <div className="category-tabs">
           {categories.map((category) => (
@@ -200,7 +180,6 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* Menu Items by Category */}
       <div className="menu-container">
         {categories.map((category) => (
           <div
@@ -232,7 +211,7 @@ const Menu = () => {
                         alt={item.name}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800'; // Fallback to a generic food image
+                          target.src = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800'
                         }}
                       />
                     </div>
