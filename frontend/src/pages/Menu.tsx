@@ -24,7 +24,7 @@ const Menu = () => {
       try {
         const apiUrl = window.location.hostname === 'localhost'
           ? 'http://localhost:8080/api/menu'
-          : 'http://localhost:8080/api/menu'
+          : 'http://backend:8080/api/menu'
         const response = await axios.get(apiUrl)
         setMenuItems(response.data)
         if (response.data.length > 0) {
