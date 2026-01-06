@@ -392,13 +392,13 @@
   }
 
   .category-navigation {
-    top: 70px;
+    top: 90px; /* Increased from 70px to avoid hiding behind top bar on mobile */
     padding: 0.75rem;
   }
 
   .category-title {
     font-size: 1.6rem;
-    top: 110px;
+    top: 140px; /* Increased from 110px to match the navigation offset */
   }
 
   .category-arrows {
