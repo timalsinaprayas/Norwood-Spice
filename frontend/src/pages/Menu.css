@@ -401,7 +401,7 @@
   }
 
   .category-navigation {
-    top: 90px; /* Increased from 70px to avoid hiding behind top bar on mobile */
+    top: 100px; /* Increased from 70px to avoid hiding behind top bar on mobile */
     padding: 1rem 1rem; /* Added more padding for spacing */
     margin-bottom: 1.5rem; /* Added more spacing below navigation */
   }
