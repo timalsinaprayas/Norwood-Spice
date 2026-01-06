@@ -347,11 +347,12 @@
 
 @media (max-width: 768px) {
   .menu {
-    padding: 1rem 0;
+    padding: 1.5rem 0; /* Added more spacing */
   }
 
   .menu-header {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem; /* Added more spacing */
+    padding: 0 1rem; /* Added horizontal padding */
   }
 
   .menu-header h1 {
@@ -363,17 +364,25 @@
   }
 
   .category-items {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Made more compact */
+    gap: 0.5rem; /* Reduced gap for more compact layout */
+  }
+
+  .menu-item {
+    margin-bottom: 0.5rem; /* Added spacing between items */
+  }
+
+  .menu-item-image {
+    height: 140px; /* Reduced height for more compact items */
   }
 
   .menu-item-text {
-    padding: 0.75rem;
+    padding: 0.5rem; /* Reduced padding for compactness */
   }
 
   .menu-item-text h2,
   .menu-item-text h3 {
-    font-size: 1.1rem;
+    font-size: 1rem; /* Slightly smaller for compactness */
   }
 
   .special-badge {
@@ -384,21 +393,24 @@
   }
 
   .menu-item-description {
-    font-size: 0.8rem;
+    font-size: 0.75rem; /* Smaller for compactness */
   }
 
   .menu-item-price {
-    font-size: 1rem;
+    font-size: 0.95rem; /* Slightly smaller for compactness */
   }
 
   .category-navigation {
     top: 90px; /* Increased from 70px to avoid hiding behind top bar on mobile */
-    padding: 0.75rem;
+    padding: 1rem 1rem; /* Added more padding for spacing */
+    margin-bottom: 1.5rem; /* Added more spacing below navigation */
   }
 
   .category-title {
     font-size: 1.6rem;
     top: 140px; /* Increased from 110px to match the navigation offset */
+    margin-bottom: 1.5rem; /* Added more spacing */
+    padding: 1rem; /* Added padding for spacing */
   }
 
   .category-arrows {
@@ -410,15 +422,60 @@
     height: 35px;
     font-size: 1rem;
   }
+
+  .menu-container {
+    padding: 0 1rem; /* Added horizontal padding */
+    gap: 1.5rem; /* Increased gap between sections */
+  }
 }
 
 @media (max-width: 480px) {
+  .menu {
+    padding: 1rem 0; /* Reduced padding for very small screens */
+  }
+
+  .menu-header {
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+  }
+
   .category-items {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column for very compact layout */
+    gap: 0.75rem;
+  }
+
+  .menu-item {
+    margin-bottom: 0.75rem;
+  }
+
+  .menu-item-image {
+    height: 120px; /* Even more compact for small screens */
+  }
+
+  .menu-item-text {
+    padding: 0.75rem 0.5rem; /* Adjusted padding */
+  }
+
+  .menu-item-description {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 3; /* Allow more lines on very small screens */
+  }
+
+  .category-navigation {
+    padding: 0.75rem 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .category-title {
+    font-size: 1.4rem;
+    top: 130px;
+    padding: 0.75rem 0.5rem;
+    margin-bottom: 1rem;
   }
 
   .menu-container {
     padding: 0 0.5rem;
+    gap: 1rem;
   }
 }
 
