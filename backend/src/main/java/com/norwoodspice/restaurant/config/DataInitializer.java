@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.norwoodspice.restaurant.model.MenuItem;
 import com.norwoodspice.restaurant.repository.MenuItemRepository;
 
 @Component
