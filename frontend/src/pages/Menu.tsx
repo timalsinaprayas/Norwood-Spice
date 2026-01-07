@@ -22,7 +22,7 @@ const Menu = () => {
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
-        const apiUrl = 'http://18.188.207.87:8080/api/menu'
+        const apiUrl = 'http://18.220.101.133:8080/api/menu'
         const response = await axios.get(apiUrl)
         setMenuItems(response.data)
         if (response.data.length > 0) {
